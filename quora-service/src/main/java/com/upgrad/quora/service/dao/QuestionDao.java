@@ -56,7 +56,7 @@ public class QuestionDao {
     @Transactional
     public void deleteQuestion(@Param("id") Integer id) {
         try {
-            entityManager.createNamedQuery("deleteEmployeeById", QuestionEntity.class)
+            entityManager.createNamedQuery("deleteQuestionById", QuestionEntity.class)
                     .setParameter(1, id)
                     .executeUpdate();
 

@@ -6,6 +6,14 @@ import java.time.ZonedDateTime;
 
 @Entity
 @Table(name = "answer")
+
+@SqlResultSetMapping(name="answerResult", columns = { @ColumnResult(name = "count")})
+@NamedNativeQueries({
+        @NamedNativeQuery(
+                name    =   "deleteAnswerById",
+                query   =   "DELETE FROM answer WHERE id = ?1",resultSetMapping = "answerResult"
+        )
+})
 @NamedQueries(
         {
                 @NamedQuery(name = "getAnswerById", query = "select u from AnswerEntity u where u.id=:answerId"),

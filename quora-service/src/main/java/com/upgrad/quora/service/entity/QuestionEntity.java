@@ -9,7 +9,7 @@ import java.time.ZonedDateTime;
 @SqlResultSetMapping(name="deleteResult", columns = { @ColumnResult(name = "count")})
 @NamedNativeQueries({
         @NamedNativeQuery(
-                name    =   "deleteEmployeeById",
+                name    =   "deleteQuestionById",
                 query   =   "DELETE FROM question WHERE id = ?1",resultSetMapping = "deleteResult"
         )
 })

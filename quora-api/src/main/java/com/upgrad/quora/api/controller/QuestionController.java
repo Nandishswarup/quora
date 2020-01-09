@@ -42,7 +42,7 @@ public class QuestionController {
     }
 
     @RequestMapping(method = RequestMethod.GET, path = "/question/all", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<List<QuestionEntity>> getAllQuestions(@RequestParam String accesstoken) throws SignUpRestrictedException, AuthorizationFailedException, UserNotFoundException {
+    public ResponseEntity<List<QuestionEntity>> getAllQuestions(@RequestParam String accesstoken) throws  AuthorizationFailedException{
          List<QuestionEntity> questionEntityList = questionControllerService.getAll(accesstoken);
          return new ResponseEntity<List<QuestionEntity>>(questionEntityList, HttpStatus.OK);
     }
@@ -53,9 +53,9 @@ public class QuestionController {
         return new ResponseEntity<List<QuestionEntity>>(questionEntityList, HttpStatus.OK);
     }
 
-    @RequestMapping(method = RequestMethod.GET, path = "/question/edit/{questionId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<QuestionEditResponse> getUserDetail(@PathVariable("questionId") Integer questionId, @RequestParam String accesstoken, @RequestParam Integer userId, @RequestParam String content) throws SignUpRestrictedException, AuthorizationFailedException, UserNotFoundException, InvalidQuestionException {
-        QuestionEntity questionEntity=questionControllerService.edit(questionId, accesstoken,userId,content);
+    @RequestMapping(method = RequestMethod.PUT, path = "/question/edit/{questionId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<QuestionEditResponse> updateQuestion(@PathVariable("questionId") Integer questionId, @RequestParam String accesstoken, @RequestParam String content) throws SignUpRestrictedException, AuthorizationFailedException, UserNotFoundException, InvalidQuestionException {
+        QuestionEntity questionEntity=questionControllerService.edit(questionId, accesstoken,content);
 
         QuestionEditResponse questionEditResponse=new QuestionEditResponse();
         questionEditResponse.setId(String.valueOf(questionEntity.getUuid()));
@@ -68,7 +68,7 @@ public class QuestionController {
     public ResponseEntity<QuestionDeleteResponse> deleteQuestion(@PathVariable("questionId") Integer questionId, @RequestParam String accesstoken, @RequestParam Integer userId) throws SignUpRestrictedException, AuthorizationFailedException, UserNotFoundException, InvalidQuestionException {
 
         QuestionDeleteResponse questionDeleteResponse=new QuestionDeleteResponse();
-        QuestionEntity questionEntity=questionControllerService.delete(questionId,accesstoken,userId);
+        QuestionEntity questionEntity=questionControllerService.delete(questionId,accesstoken);
         questionDeleteResponse.setId(String.valueOf(questionEntity.getUuid()));
         return new ResponseEntity<QuestionDeleteResponse>(questionDeleteResponse, HttpStatus.OK);
 

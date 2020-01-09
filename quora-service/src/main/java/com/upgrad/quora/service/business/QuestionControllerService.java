@@ -59,40 +59,44 @@ public class QuestionControllerService {
     }
 
     @Transactional(noRollbackFor = {TransactionException.class})
-    public QuestionEntity edit(Integer questionId, String access_token, Integer userId, String content) throws AuthorizationFailedException, InvalidQuestionException {
+    public QuestionEntity edit(Integer questionId, String access_token, String content) throws AuthorizationFailedException, InvalidQuestionException {
         UserAuthTokenEntity userAuthTokenEntity = userDao.checkAuthToken(access_token);
         if (userAuthTokenEntity == null) {
             throw new AuthorizationFailedException("ATHR-001'", "User has not signed in");
         }
-        if (userAuthTokenEntity.getId() != userId) {
-            throw new AuthorizationFailedException("ATHR-003'", "Only the question owner can edit the question");
-
-        }
-
         QuestionEntity questionEntity = questionDao.getQuestionById(questionId);
         if (questionEntity == null)
             throw new InvalidQuestionException("QUES-001'", "Entered question uuid does not exist");
+
+        if (userAuthTokenEntity.getId() != questionEntity.getUser_id()) {
+            throw new AuthorizationFailedException("ATHR-003'", "Only the question owner can edit the question");
+        }
+
+
         questionEntity.setContent(content);
         questionDao.updateQuestion(questionEntity);
         return questionEntity;
     }
 
-    public QuestionEntity delete(Integer questionId, String access_token, Integer userId) throws AuthorizationFailedException, InvalidQuestionException {
+    public QuestionEntity delete(Integer questionId, String access_token) throws AuthorizationFailedException, InvalidQuestionException {
 
         UserAuthTokenEntity userAuthTokenEntity = userDao.checkAuthToken(access_token);
         if (userAuthTokenEntity == null) {
             throw new AuthorizationFailedException("ATHR-001'", "User has not signed in");
         }
-        Users users = userDao.getuserByid(userId);
-
-        if (userAuthTokenEntity.getId() != userId) {
-            if(!users.getRole().contentEquals("admin"))
-            throw new AuthorizationFailedException("ATHR-003'", "Only the question owner or admin can delete the question");
-        }
 
         QuestionEntity questionEntity = questionDao.getQuestionById(questionId);
         if (questionEntity == null)
             throw new InvalidQuestionException("QUES-001'", "Entered question uuid does not exist");
+
+
+
+        Users users = userDao.getuserByid(userAuthTokenEntity.getId());
+        if (userAuthTokenEntity.getId() != questionEntity.getUser_id()) {
+            if(!users.getRole().contentEquals("admin"))
+            throw new AuthorizationFailedException("ATHR-003'", "Only the question owner or admin can delete the question");
+        }
+
 
 
         questionDao.deleteQuestion(questionId);
