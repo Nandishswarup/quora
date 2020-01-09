@@ -30,7 +30,7 @@ public class QuestionController {
 
 
     @RequestMapping(method = RequestMethod.POST, path = "/question/create", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<QuestionResponse> signup(final QuestionRequest questionRequest, Integer user_id, String access_token) throws SignUpRestrictedException, AuthorizationFailedException {
+    public ResponseEntity<QuestionResponse> createQuestion(final QuestionRequest questionRequest, Integer user_id, String access_token) throws SignUpRestrictedException, AuthorizationFailedException {
         final QuestionEntity questionEntity = new QuestionEntity();
         questionEntity.setContent(questionRequest.getContent());
         questionEntity.setDate(ZonedDateTime.ofInstant(new Date().toInstant(), ZoneId.systemDefault()));
@@ -47,25 +47,11 @@ public class QuestionController {
          return new ResponseEntity<List<QuestionEntity>>(questionEntityList, HttpStatus.OK);
     }
 
-
-
-
     @RequestMapping(method = RequestMethod.GET, path = "question/all/{userId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<List<QuestionEntity>> getAllQuestionsOfUser(@PathVariable("userId") Integer userId,@RequestParam String accesstoken) throws SignUpRestrictedException, AuthorizationFailedException, UserNotFoundException {
         List<QuestionEntity> questionEntityList = questionControllerService.getAllQuestionsOfUser(userId,accesstoken);
         return new ResponseEntity<List<QuestionEntity>>(questionEntityList, HttpStatus.OK);
     }
-
-
-
-
-
-
-
-
-
-
-
 
     @RequestMapping(method = RequestMethod.GET, path = "/question/edit/{questionId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<QuestionEditResponse> getUserDetail(@PathVariable("questionId") Integer questionId, @RequestParam String accesstoken, @RequestParam Integer userId, @RequestParam String content) throws SignUpRestrictedException, AuthorizationFailedException, UserNotFoundException, InvalidQuestionException {

@@ -52,7 +52,7 @@ public class QuestionControllerService {
         if (userAuthTokenEntity == null) {
             throw new AuthorizationFailedException("ATHR-001'", "User has not signed in");
         }
-        return questionDao.getAllQuestion(userId);
+        return questionDao.getAllQuestionOfUser(userId);
 
 
 
