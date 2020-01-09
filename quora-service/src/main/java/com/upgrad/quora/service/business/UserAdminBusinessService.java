@@ -1,0 +1,78 @@
+package com.upgrad.quora.service.business;
+
+import com.upgrad.quora.service.dao.UserDao;
+import com.upgrad.quora.service.entity.UserAuthTokenEntity;
+import com.upgrad.quora.service.entity.Users;
+import com.upgrad.quora.service.exception.AuthorizationFailedException;
+import com.upgrad.quora.service.exception.SignOutRestrictedException;
+import com.upgrad.quora.service.exception.SignUpRestrictedException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionException;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Date;
+
+@Service
+
+public class UserAdminBusinessService {
+    @Autowired
+    private UserDao userDao;
+
+    @Autowired
+    private PasswordCryptographyProvider cryptographyProvider;
+
+   // @Transactional(propagation = Propagation.REQUIRED)
+   public Users signup(Users users) throws SignUpRestrictedException {
+        String password = users.getPassword();
+        if(password == null){
+            users.setPassword("quora@123");
+        }
+        String[] encryptedText = cryptographyProvider.encrypt(users.getPassword());
+        users.setSalt(encryptedText[0]);
+        users.setPassword(encryptedText[1]);
+        if(userDao.getUserByUserName(users.getUsername())!=null)
+        {
+            throw new SignUpRestrictedException("SGR-001","Try any other Username, this Username has already been taken");
+        }
+        if(userDao.getUserByEmail(users.getEmail())!=null)
+        {
+            throw new SignUpRestrictedException("SGR-002","This user has already been registered, try with any other emailId");
+        }
+
+        return userDao.createUser(users);
+    }
+    @Transactional(noRollbackFor={TransactionException.class})
+    public Users signoutUser(String accessToken) throws SignOutRestrictedException {
+
+        UserAuthTokenEntity userAuthTokenEntity=userDao.checkAuthToken(accessToken);
+        if(userAuthTokenEntity==null)
+        {
+            return null;
+
+        }
+
+
+        return userDao.signoutUser(ZonedDateTime.ofInstant(new Date().toInstant(), ZoneId.systemDefault()),userAuthTokenEntity.getAccess_token());
+
+    }
+
+
+
+    @Transactional(noRollbackFor={TransactionException.class})
+    public Users getUserDetail(Integer id, String accesstoken) throws AuthorizationFailedException {
+
+        UserAuthTokenEntity userAuthTokenEntity=userDao.checkAuthToken(accesstoken);
+        if(userAuthTokenEntity==null)
+        {
+            throw new AuthorizationFailedException("ATHR-001","User has not signed in");
+
+        }
+
+
+        return userDao.getUserDetail(id);
+
+    }
+}
