@@ -1,6 +1,6 @@
 package com.upgrad.quora.service.business;
 
-import com.upgrad.quora.service.entity.Users;
+import com.upgrad.quora.service.entity.UserAuthTokenEntity;
 import com.upgrad.quora.service.exception.SignOutRestrictedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,7 +14,7 @@ public class SignoutBusinessService {
     private UserAdminBusinessService userAdminBusinessService;
 
     @Transactional(noRollbackFor={TransactionException.class})
-    public Users signout(String  accessToken) throws SignOutRestrictedException {
+    public UserAuthTokenEntity signout(String  accessToken) throws SignOutRestrictedException {
         return userAdminBusinessService.signoutUser(accessToken);
     }
 }

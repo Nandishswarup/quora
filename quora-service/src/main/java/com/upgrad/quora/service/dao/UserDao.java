@@ -2,15 +2,15 @@ package com.upgrad.quora.service.dao;
 
 import com.upgrad.quora.service.entity.UserAuthTokenEntity;
 import com.upgrad.quora.service.entity.Users;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Date;
 
 @Repository
 public class UserDao {
@@ -23,33 +23,17 @@ public class UserDao {
         return users;
     }
 
-
-   /* public SignupUserRequest getUser(final String userUuid) {
-
-        try {
-            return entityManager.createNamedQuery("userByUuid", SignupUserRequest.class).setParameter("uuid", userUuid).getSingleResult();
-        } catch (Exception e) {
-            return null;
-        }
-    }*/
-
+ 
     public Users getUserByEmail(final String email) {
 
         try {
-           /* String sql = "SELECT * FROM users AS UserEntity WHERE email = ?";
-
-            javax.persistence.Query query = entityManager.createNativeQuery(sql, Users.class);
-            query.setParameter(1, email);
-            return  (Users) query.getSingleResult();
-*/
-
             return entityManager.createNamedQuery("userByEmail", Users.class).setParameter("email", email).getSingleResult();
         } catch (Exception e) {
             return null;
         }
     }
 
-    public Users getuserByid(final int id) {
+    public Users getUserByid(final int id) {
 
         try {
             return entityManager.createNamedQuery("userById", Users.class).setParameter("id", id).getSingleResult();
@@ -79,12 +63,10 @@ public class UserDao {
 
 
 
-    @Transactional
     public void updateUser(final Users updatedUserEntity) {
         entityManager.merge(updatedUserEntity);
     }
 
-    @Transactional
     public UserAuthTokenEntity createAuthToken(final UserAuthTokenEntity userAuthTokenEntity) {
         entityManager.persist(userAuthTokenEntity);
         return userAuthTokenEntity;
@@ -99,17 +81,26 @@ public class UserDao {
         }
     }
 
-    @Modifying
-    @Query("delete from Users u where u.id=:id")
+
+    @Transactional
     public void deleteUser(@Param("id") Integer id){
+        try {
+            entityManager.createNamedQuery("deleteUserById", Users.class)
+                    .setParameter(1, id)
+                    .executeUpdate();
 
+            //Execute the delete query
+            entityManager.flush();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            // return false;
+        }
     }
-
-
-    @Query("update UserAuthTokenEntity c set c.logout_at = :logoutAt WHERE c.access_token = :accessToken")
-    public Users signoutUser(@Param("logoutAt") ZonedDateTime logoutAt, @Param("accessToken") String accessToken) {
-        int iduser= checkAuthToken(accessToken).getId();
-
-        return getuserByid(iduser);
+    @Transactional
+    public UserAuthTokenEntity signoutUser(final UserAuthTokenEntity userAuthTokenEntity) {
+        userAuthTokenEntity.setLogout_at( ZonedDateTime.ofInstant(new Date().toInstant(), ZoneId.systemDefault()));
+        entityManager.merge(userAuthTokenEntity);
+        return  userAuthTokenEntity;
     }
 }

@@ -24,7 +24,7 @@ public class AdminController {
 
     @RequestMapping(method = RequestMethod.DELETE, path = "/admin/user/{userId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<UserDeleteResponse> deleteUser(@PathVariable("userId") Integer userId, @RequestParam String accesstoken) throws SignUpRestrictedException, AuthorizationFailedException, UserNotFoundException {
-        Users users = userDao.getuserByid(userId);
+        Users users = userDao.getUserByid(userId);
 
         if (users == null)
             throw new UserNotFoundException("USR-001", "User with entered uuid to be deleted does not exist");
@@ -34,7 +34,7 @@ public class AdminController {
             throw new AuthorizationFailedException("ATHR-001", "User has not signed in");
 
 
-        Users userOfAccessToken=userDao.getuserByid(userAuthTokenEntity.getId());
+        Users userOfAccessToken=userDao.getUserByid(userAuthTokenEntity.getId());
         if (!userOfAccessToken.getRole().contentEquals("admin"))
             throw new AuthorizationFailedException("ATHR-003", "Unauthorized Access, Entered user is not an admin");
 

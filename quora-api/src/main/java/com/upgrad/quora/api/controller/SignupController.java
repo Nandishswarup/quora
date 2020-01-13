@@ -31,6 +31,10 @@ public class SignupController {
         users.setPassword(signupUserRequest.getPassword());
         users.setContactnumber(signupUserRequest.getContactNumber());
         users.setUsername(signupUserRequest.getUserName());
+        users.setCountry(signupUserRequest.getCountry());
+users.setDob(signupUserRequest.getDob());
+users.setAboutme(signupUserRequest.getAboutMe());
+
         users.setSalt("1234abc");
         final Users createdUsers = signupBusinessService.signup(users);
         SignupUserResponse userResponse = new SignupUserResponse().id(createdUsers.getUuid()).status("REGISTERED");

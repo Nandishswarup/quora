@@ -28,12 +28,8 @@ public class SignInController {
         byte[] decode = Base64.getDecoder().decode(authorization.split("Basic ")[1]);
         String decodedText = new String(decode);
         String[] decodedArray = decodedText.split(":");
-
         UserAuthTokenEntity userAuthToken = authenticationService.authenticate(decodedArray[0],decodedArray[1]);
-
-
         SigninResponse authorizedUserResponse =  new SigninResponse().id(userAuthToken.getUuid());
-
         HttpHeaders headers = new HttpHeaders();
         headers.add("access-token", userAuthToken.getAccess_token());
         return new ResponseEntity<SigninResponse>(authorizedUserResponse,headers, HttpStatus.OK);

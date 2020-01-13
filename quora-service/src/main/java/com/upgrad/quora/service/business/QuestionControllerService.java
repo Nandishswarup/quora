@@ -12,6 +12,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -29,6 +32,16 @@ public class QuestionControllerService {
         if (userAuthTokenEntity == null) {
             throw new AuthorizationFailedException("ATHR-001'", "User has not signed in");
         }
+
+        //Checking if user has logged out with respect to current date and time
+        ZonedDateTime getLogoutAt = userAuthTokenEntity.getLogout_at();
+        ZonedDateTime dateCurrent = ZonedDateTime.ofInstant(new Date().toInstant(), ZoneId.systemDefault());
+        if (getLogoutAt != null)
+            if (getLogoutAt.isBefore(dateCurrent))
+                throw new AuthorizationFailedException("ATHR-002", "User is signed out.Sign in first to post a question");
+
+
+
         questionEntity.setUuid(userAuthTokenEntity.getUuid());
 
         return questionDao.create(questionEntity);
@@ -42,6 +55,14 @@ public class QuestionControllerService {
         if (userAuthTokenEntity == null) {
             throw new AuthorizationFailedException("ATHR-001'", "User has not signed in");
         }
+        //Checking if user has logged out with respect to current date and time
+        ZonedDateTime getLogoutAt = userAuthTokenEntity.getLogout_at();
+        ZonedDateTime dateCurrent = ZonedDateTime.ofInstant(new Date().toInstant(), ZoneId.systemDefault());
+        if (getLogoutAt != null)
+            if (getLogoutAt.isBefore(dateCurrent))
+                throw new AuthorizationFailedException("ATHR-002", "User is signed out.Sign in first to get all questions");
+
+
         return questionDao.getAll();
 
     }
@@ -52,6 +73,14 @@ public class QuestionControllerService {
         if (userAuthTokenEntity == null) {
             throw new AuthorizationFailedException("ATHR-001'", "User has not signed in");
         }
+        //Checking if user has logged out with respect to current date and time
+        ZonedDateTime getLogoutAt = userAuthTokenEntity.getLogout_at();
+        ZonedDateTime dateCurrent = ZonedDateTime.ofInstant(new Date().toInstant(), ZoneId.systemDefault());
+        if (getLogoutAt != null)
+            if (getLogoutAt.isBefore(dateCurrent))
+                throw new AuthorizationFailedException("ATHR-002", "User is signed out.Sign in first to get all questions posted by a specific user");
+
+
         return questionDao.getAllQuestionOfUser(userId);
 
 
@@ -72,6 +101,14 @@ public class QuestionControllerService {
             throw new AuthorizationFailedException("ATHR-003'", "Only the question owner can edit the question");
         }
 
+        //Checking if user has logged out with respect to current date and time
+        ZonedDateTime getLogoutAt = userAuthTokenEntity.getLogout_at();
+        ZonedDateTime dateCurrent = ZonedDateTime.ofInstant(new Date().toInstant(), ZoneId.systemDefault());
+        if (getLogoutAt != null)
+            if (getLogoutAt.isBefore(dateCurrent))
+                throw new AuthorizationFailedException("ATHR-002", "User is signed out.Sign in first to get all questions");
+
+
 
         questionEntity.setContent(content);
         questionDao.updateQuestion(questionEntity);
@@ -84,6 +121,12 @@ public class QuestionControllerService {
         if (userAuthTokenEntity == null) {
             throw new AuthorizationFailedException("ATHR-001'", "User has not signed in");
         }
+        //Checking if user has logged out with respect to current date and time
+        ZonedDateTime getLogoutAt = userAuthTokenEntity.getLogout_at();
+        ZonedDateTime dateCurrent = ZonedDateTime.ofInstant(new Date().toInstant(), ZoneId.systemDefault());
+        if (getLogoutAt != null)
+            if (getLogoutAt.isBefore(dateCurrent))
+                throw new AuthorizationFailedException("ATHR-002", "User is signed out.Sign in first to delete a question");
 
         QuestionEntity questionEntity = questionDao.getQuestionById(questionId);
         if (questionEntity == null)
@@ -91,7 +134,8 @@ public class QuestionControllerService {
 
 
 
-        Users users = userDao.getuserByid(userAuthTokenEntity.getId());
+
+        Users users = userDao.getUserByid(userAuthTokenEntity.getId());
         if (userAuthTokenEntity.getId() != questionEntity.getUser_id()) {
             if(!users.getRole().contentEquals("admin"))
             throw new AuthorizationFailedException("ATHR-003'", "Only the question owner or admin can delete the question");

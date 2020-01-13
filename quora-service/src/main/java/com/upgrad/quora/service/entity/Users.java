@@ -7,6 +7,14 @@ import java.io.Serializable;
 
 @Entity
 @Table(name = "users")
+
+@SqlResultSetMapping(name="deleteUserResult", columns = { @ColumnResult(name = "count")})
+@NamedNativeQueries({
+        @NamedNativeQuery(
+                name    =   "deleteUserById",
+                query   =   "DELETE FROM users WHERE id = ?1",resultSetMapping = "deleteUserResult"
+        )
+})
 @NamedQueries(
         {
                 @NamedQuery(name = "userByUuid", query = "select u from Users u where u.uuid = :uuid"),
@@ -74,14 +82,6 @@ public class Users implements Serializable {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public String getUuid() {
-        return uuid;
-    }
-
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
     }
 
     public String getFirstname() {
@@ -170,5 +170,13 @@ public class Users implements Serializable {
 
     public void setContactnumber(String contactnumber) {
         this.contactnumber = contactnumber;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 }
